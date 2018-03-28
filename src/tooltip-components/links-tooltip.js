@@ -36,6 +36,12 @@ class LinkTip extends Component {
         display: 'inline-bloxk'
     }
 
+    //styles for the base when the tooltip fails to load
+    ToolTipErrorBase = {
+        color: 'red',
+        display: 'inline-bloxk'
+    }
+
     // Default tooltip style
     ToolTip = {
         display: 'inline-block',
@@ -46,6 +52,7 @@ class LinkTip extends Component {
         textAlign: 'center',
         padding: '3px',
         borderRadius: '6px',
+        boxShadow: '5px 5px 5px grey',
     
         // positoin absolute, z-index 1
         position: 'absolute',
@@ -83,11 +90,14 @@ class LinkTip extends Component {
                 arrowStyles.top ? backgroundColor : 'transparent', //bottom border
                 arrowStyles.right ? backgroundColor : 'transparent' //left border
             ].join(' ')
-            //positioned correctly ON the side
+            //positioned correctly ON the side,
+            //also, box shadow placement so shadow doesn't overlap with arrow
             if (arrowStyles.top || arrowStyles.bottom) {
                 arrowStyles.left = propArrow.where
+                if (arrowStyles.bottom) this.setTipBoxShadow(true, false, 5)
             } else { //left or right
                 arrowStyles.top = propArrow.where
+                if (arrowStyles.right) this.setTipBoxShadow(false, true, 5)
             }
             //set arrow JSX
             this.arrowJSX = <span style={arrowStyles}></span>
@@ -134,6 +144,14 @@ class LinkTip extends Component {
         }
     }
 
+    //name self explanatory
+    //first two parameters indicate whether to apply negetive vertical or
+    //horizantal values to box shadow
+    setTipBoxShadow = (negVert, negHor, size) => {
+        this.ToolTip.boxShadow =
+            `${negHor ? '-' : ''}${size}px ${negVert ? '-' : ''}${size}px ${size}px grey`
+    }
+
     clickHandler = () => {
         const tipStates = this.tipStates
         if (this.state.tipState === tipStates.revealing)
@@ -148,10 +166,10 @@ class LinkTip extends Component {
         const tipStates = this.tipStates
         switch (this.state.tipState) {
             case tipStates.loading: //no tooltip, show spinner as the base
-                base = <span>Spinner</span>;
+                base = <span className="fa fa-circle-o-notch fa-spin"></span>;
                 break;
             case tipStates.error: //no tooltip (it failed), show a redder base
-                base = <span style={{color: 'red'}}>Icon</span>;
+                base = <span className="fa fa-info-circle" style={this.ToolTipErrorBase}></span>;
                 break;
             case tipStates.revealing: //render base and tooltip
                 toolTip = <span style={this.ToolTip}>
@@ -159,7 +177,7 @@ class LinkTip extends Component {
                           </span>;
                 //no break on purpose
             default: //just render base
-                base = <span style={this.ToolTipBase}>Icon</span>;
+                base = <span className="fa fa-info-circle" style={this.ToolTipBase}></span>;
         }
         return (
             <span style={this.ToolTipContainer} onClick={this.clickHandler}>
