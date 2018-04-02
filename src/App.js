@@ -23,7 +23,7 @@ class App extends Component {
         click
       >Click to show links.</ToolTip>
       <LinkTip getLinkInfo={this.getLinkInfo} top="calc(100% + 8px)" left="0"
-        arrow={{side:'top', where:'5%'}}/>
+        text="Ali O Meno" arrow={{side:'top', where:'5%'}}/>
       </div>
     );
   }

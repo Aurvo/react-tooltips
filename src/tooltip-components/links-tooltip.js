@@ -48,19 +48,18 @@ class LinkTip extends Component {
         boxSizing: 'border-box',
         width: '250px',
         fontSize: '12px',
-        backgroundColor: '#b5dbd6',
+        backgroundColor: '#d8dfd0',
         color: 'black',
         textAlign: 'center',
         padding: '3px',
         borderRadius: '6px',
         boxShadow: '0 0 3px black',
     
-        // positoin absolute, z-index 1
+        // positoin absolute
         position: 'absolute',
-        //zIndex: '1',
     }
 
-    arrowJSX = null
+    arrowStyleTagJSX = null
 
     //before component first renders, handle innitial setup based on props
     componentWillMount() {
@@ -74,34 +73,47 @@ class LinkTip extends Component {
         if (propArrow) {
             //starting arrow stypes
             const borderWidth = 7
-            const arrowStyles = {
-                content: '',
-                position: 'absolute',
-                //zIndex: '-1',
-                borderWidth: borderWidth + 'px',
-                borderStyle: 'solid',
-                transformOrigin: 'center',
-                transform: 'rotate(45deg)',
-                boxShadow: '0 0 3px black'
-            }
+            const arrowStyles = [
+                'content: ""',
+                'position: absolute',
+                'border-width: ' + borderWidth + 'px',
+                'border-style: solid',
+                'transform-origin: center',
+                'transform: rotate(45deg)'
+            ]
+            const beforeStyles = [
+                'content: ""',
+                'position: absolute',
+                'z-index: -1',
+                'border: ' + borderWidth + 'px solid transparent',
+                'transform: rotate(45deg)',
+                'box-shadow: 0 0 3px black'
+            ]
             //positioned on correct side
-            arrowStyles[propArrow.side] = -0.9*(borderWidth)+'px'
-            //rotation
+            const sideWithArrow = propArrow.side
+            arrowStyles.push(`${sideWithArrow}: ${-0.9*borderWidth}px`)
+            beforeStyles.push(`${sideWithArrow}: ${-0.9*borderWidth}px`)
+            //rotation (the arrow isn't actually rotated here, the border colors
+            //are just set to a color or transparent depending on where the arrow
+            //should be)
             const backgroundColor = this.ToolTip.backgroundColor || 'grey'
-            arrowStyles.borderColor = [
-                arrowStyles.top || arrowStyles.right ? backgroundColor : 'transparent', //top border
-                arrowStyles.right || arrowStyles.bottom ? backgroundColor : 'transparent', //right border
-                arrowStyles.bottom || arrowStyles.left ? backgroundColor : 'transparent', //bottom border
-                arrowStyles.left || arrowStyles.top ? backgroundColor : 'transparent' //left border
-            ].join(' ')
+            arrowStyles.push([
+                'border-color:',
+                sideWithArrow === 'top' || sideWithArrow === 'right' ? backgroundColor : 'transparent', //top border
+                sideWithArrow === 'right' || sideWithArrow === 'bottom' ? backgroundColor : 'transparent', //right border
+                sideWithArrow === 'bottom' || sideWithArrow === 'left' ? backgroundColor : 'transparent', //bottom border
+                sideWithArrow === 'left' || sideWithArrow === 'top' ? backgroundColor : 'transparent' //left border
+            ].join(' '))
             //positioned correctly ON the side,
-            if (arrowStyles.top || arrowStyles.bottom) {
-                arrowStyles.left = propArrow.where
+            if (sideWithArrow === 'top' || sideWithArrow === 'bottom') {
+                arrowStyles.push('left: ' + propArrow.where)
+                beforeStyles.push('left: ' + propArrow.where)
             } else { //left or right
-                arrowStyles.top = propArrow.where
+                arrowStyles.push('top: ' + propArrow.where)
+                beforeStyles.push('top: ' + propArrow.where)
             }
             //set arrow JSX
-            this.arrowJSX = <span style={arrowStyles}></span>
+            this.arrowStyleTagJSX = <style>{`.q07-link-tip::before { ${beforeStyles.join('; ')} } .q07-link-tip::after { ${arrowStyles.join('; ')} }`}</style>
         }
     }
 
@@ -126,7 +138,7 @@ class LinkTip extends Component {
                     tipState: this.tipStates.revealing,
                     tipJSX: (
                     <React.Fragment>
-                        <h3>Links</h3>
+                        <h4>Competetor Links</h4>
                         <ul style={{textAlign: 'left'}}>
                             {linkArray}
                         </ul>
@@ -154,22 +166,29 @@ class LinkTip extends Component {
         let base = null;
         const tipStates = this.tipStates
         switch (this.state.tipState) {
-            case tipStates.loading: //no tooltip, show spinner as the base
-                base = <span className="fa fa-circle-o-notch fa-spin"></span>;
+            case tipStates.loading: //no tooltip, show text + spinner as the base
+                base = (<span style={this.ToolTipBase}>{this.props.text + ' '}
+                    <span className="fa fa-circle-o-notch fa-spin"></span>
+                </span>);
                 break;
             case tipStates.error: //no tooltip (it failed), show a redder base
-                base = <span className="fa fa-info-circle" style={this.ToolTipErrorBase}></span>;
+                base = (<span style={this.ToolTipErrorBase}>{this.props.text + ' '}
+                    <span className="fa fa-info-circle"></span>
+                </span>);
                 break;
             case tipStates.revealing: //render base and tooltip
-                toolTip = <span style={this.ToolTip}>
-                            {this.state.tipJSX}{this.arrowJSX}
+                toolTip = <span className="q07-link-tip" style={this.ToolTip}>
+                            {this.state.tipJSX}
                           </span>;
                 //no break on purpose
             default: //just render base
-                base = <span className="fa fa-info-circle" style={this.ToolTipBase}></span>;
+                base = (<span style={this.ToolTipBase}>{this.props.text + ' '}
+                    <span className="fa fa-info-circle"></span>
+                </span>);
         }
         return (
             <span style={this.ToolTipContainer} onClick={this.clickHandler}>
+                {this.arrowStyleTagJSX /*null if no arrow*/ }
                 {base}
                 {toolTip}
             </span>
@@ -183,6 +202,7 @@ LinkTip.propTypes = {
     left: PropTypes.string,
     bottom: PropTypes.string,
     right: PropTypes.string,
+    text: PropTypes.string,
     arrow: PropTypes.shape({
         side: PropTypes.oneOf(['top','left','right','bottom']),
         where: PropTypes.string
