@@ -40,11 +40,11 @@ class App extends Component {
     setTimeout(() => {
       let data = null
       try {
-        data = {
-          'http://www.firstlink.com': '#',
-          'http//beckonthesecond.net': '#',
-          'http://thirdsthecharm.org': '#'
-        }
+        data = [
+          {linkText: 'http://www.firstlink.com', href: '#', status: 'Active'},
+          {linkText: 'http//beckonthesecond.net', href: '#', status: 'Pending'},
+          {linkText: 'http://thirdsthecharm.org', href: '#', status: 'Active'}
+        ]
       } catch(error) {
         reject(error)
         return

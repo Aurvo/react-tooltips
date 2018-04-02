@@ -47,16 +47,17 @@ class LinkTip extends Component {
         display: 'inline-block',
         boxSizing: 'border-box',
         width: '250px',
+        fontSize: '12px',
         backgroundColor: '#b5dbd6',
         color: 'black',
         textAlign: 'center',
         padding: '3px',
         borderRadius: '6px',
-        boxShadow: '5px 5px 5px grey',
+        boxShadow: '0 0 3px black',
     
         // positoin absolute, z-index 1
         position: 'absolute',
-        zIndex: '1',
+        //zIndex: '1',
     }
 
     arrowJSX = null
@@ -76,28 +77,28 @@ class LinkTip extends Component {
             const arrowStyles = {
                 content: '',
                 position: 'absolute',
-                zIndex: '1',
+                //zIndex: '-1',
                 borderWidth: borderWidth + 'px',
-                borderStyle: 'solid'
+                borderStyle: 'solid',
+                transformOrigin: 'center',
+                transform: 'rotate(45deg)',
+                boxShadow: '0 0 3px black'
             }
             //positioned on correct side
-            arrowStyles[propArrow.side] = (-2*borderWidth)+'px'
+            arrowStyles[propArrow.side] = -0.9*(borderWidth)+'px'
             //rotation
             const backgroundColor = this.ToolTip.backgroundColor || 'grey'
             arrowStyles.borderColor = [
-                arrowStyles.bottom ? backgroundColor : 'transparent', //top border
-                arrowStyles.left ? backgroundColor : 'transparent', //right border
-                arrowStyles.top ? backgroundColor : 'transparent', //bottom border
-                arrowStyles.right ? backgroundColor : 'transparent' //left border
+                arrowStyles.top || arrowStyles.right ? backgroundColor : 'transparent', //top border
+                arrowStyles.right || arrowStyles.bottom ? backgroundColor : 'transparent', //right border
+                arrowStyles.bottom || arrowStyles.left ? backgroundColor : 'transparent', //bottom border
+                arrowStyles.left || arrowStyles.top ? backgroundColor : 'transparent' //left border
             ].join(' ')
             //positioned correctly ON the side,
-            //also, box shadow placement so shadow doesn't overlap with arrow
             if (arrowStyles.top || arrowStyles.bottom) {
                 arrowStyles.left = propArrow.where
-                if (arrowStyles.bottom) this.setTipBoxShadow(true, false, 5)
             } else { //left or right
                 arrowStyles.top = propArrow.where
-                if (arrowStyles.right) this.setTipBoxShadow(false, true, 5)
             }
             //set arrow JSX
             this.arrowJSX = <span style={arrowStyles}></span>
@@ -116,15 +117,11 @@ class LinkTip extends Component {
         const tipStates = this.tipStates
         if (this.state.tipState === tipStates.loading) {
             this.props.getLinkInfo((data) => {
-                const linkArray = []
-                let index = -1
-                for (let linkName in data) {
-                    index++;
-                    linkArray.push(<li
-                        key={index}>
-                            <a href={data[linkName]}>{linkName}</a>
-                    </li>)
-                }
+                const linkArray = data.map((el, index) => (
+                    <li key={index}>
+                        <a href={el.href}>{el.linkText}</a> - {el.status}
+                    </li>
+                ))
                 this.setState({
                     tipState: this.tipStates.revealing,
                     tipJSX: (
@@ -142,14 +139,6 @@ class LinkTip extends Component {
                 console.log(error.message)
             })
         }
-    }
-
-    //name self explanatory
-    //first two parameters indicate whether to apply negetive vertical or
-    //horizantal values to box shadow
-    setTipBoxShadow = (negVert, negHor, size) => {
-        this.ToolTip.boxShadow =
-            `${negHor ? '-' : ''}${size}px ${negVert ? '-' : ''}${size}px ${size}px grey`
     }
 
     clickHandler = () => {
