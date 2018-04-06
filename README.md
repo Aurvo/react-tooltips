@@ -11,15 +11,19 @@ Props:
 
 getLinkInfo (required): The only required prop. This is the asynchronous function
 that gets the data for the links when the tooltip is loading. Must accept two parameters:
-  resolve: the function to form the links that the component is to supply. Call this
+  resolve: the function to form the links that the component will supply. Call this
            after your function gets the link data. One parameter:
-           data: an object containing the link information. Each property should correspond
-           to a link. The property's name should be the text that is seen on the webpage.
-           The property's value should be the actual URI. Example:
-            {
-              'Click me to go somewhere': 'http://www.somewhere.com',
-              'Another Link': 'http://anotherplace.com'
-            }
+           data: an array containing the link information. Each element should correspond
+           to a link and be an object. The element's text attribute should be a string
+           containing the displayed text for the link. The href attribute is the href of
+           the link, and the status attribute is the status to be displayed after the
+           link. Example:
+            [
+              {name: 'Click me to go somewhere', href: 'http://www.somewhere.com',
+                status: 'Active'},
+               {name: 'Another Link', href: 'http://www.someotherplace.com',
+                status: 'Pending'},
+            ]
   reject: The function that the component will supply for when the data fails to load. One
           parameter:
           error: a javaScript error object
@@ -33,9 +37,9 @@ this is omitted. Object properties:
   side: which side of the tooltip the arrow should be on.
         Possible values: 'top', 'left', 'bottom', 'right'
   where: A string representing how far along the side the arrow should be.
-         Will be used to populate a CSS value, so example strings are those like
-         '10px' or '50%'.
          The bigger the number, the further down or right the arrow will be depemding
          on which side it's on.
+         Will be used to populate a CSS value, so example strings are those like
+         '10px' or '50%'.
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).

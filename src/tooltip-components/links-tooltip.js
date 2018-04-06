@@ -20,6 +20,9 @@ class LinkTip extends Component {
 
     state = {
         tipState: this.tipStates.normal,
+        //tipJSX is part of state so it can be set at the exact same time as tipState.
+        // (i.e so tipState can't be 'revealing' before we have the tipJSX)
+        //It's not really "state" in the standard, react, sense.
         tipJSX: null
     }
     
@@ -69,11 +72,13 @@ class LinkTip extends Component {
         this.ToolTip.right = this.props.right || undefined
         this.ToolTip.bottom = this.props.bottom || undefined
         //handle arrow prop
+        //Note: the tooltip arrow is implemented via ::before and ::after selectors
+        //in a <style> element
         const propArrow = this.props.arrow
         if (propArrow) {
             //starting arrow stypes
             const borderWidth = 7
-            const arrowStyles = [
+            const arrowStyles = [ //the actual arrow
                 'content: ""',
                 'position: absolute',
                 'border-width: ' + borderWidth + 'px',
@@ -81,7 +86,7 @@ class LinkTip extends Component {
                 'transform-origin: center',
                 'transform: rotate(45deg)'
             ]
-            const beforeStyles = [
+            const beforeStyles = [ //the phantom element that has the box shadow for the arrow
                 'content: ""',
                 'position: absolute',
                 'z-index: -1',
@@ -131,7 +136,7 @@ class LinkTip extends Component {
             this.props.getLinkInfo((data) => {
                 const linkArray = data.map((el, index) => (
                     <li key={index}>
-                        <a href={el.href}>{el.linkText}</a> - {el.status}
+                        <a href={el.href}>{el.text}</a> - {el.status}
                     </li>
                 ))
                 this.setState({

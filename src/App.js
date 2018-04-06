@@ -41,9 +41,9 @@ class App extends Component {
       let data = null
       try {
         data = [
-          {linkText: 'http://www.firstlink.com', href: '#', status: 'Active'},
-          {linkText: 'http//beckonthesecond.net', href: '#', status: 'Pending'},
-          {linkText: 'http://thirdsthecharm.org', href: '#', status: 'Active'}
+          {text: 'http://www.firstlink.com', href: '#', status: 'Active'},
+          {text: 'http//beckonthesecond.net', href: '#', status: 'Pending'},
+          {text: 'http://thirdsthecharm.org', href: '#', status: 'Active'}
         ]
       } catch(error) {
         reject(error)
